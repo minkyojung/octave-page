@@ -10,7 +10,7 @@
 		"SITE_URL": "https://www.octave.run",
 		// The production OAuth App's client id. Not a secret; the secret is set with
 		// `wrangler secret put GITHUB_CLIENT_SECRET`. Local runs override both in .dev.vars.
-		"GITHUB_CLIENT_ID": ""
+		"GITHUB_CLIENT_ID": "Ov23lisGSrhLXcw3DGPq"
 	},
 	"d1_databases": [
 		{
