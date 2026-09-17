@@ -3,7 +3,8 @@
 -- github_id is GitHub's numeric id, which never changes; login (the username)
 -- can be renamed, so it is stored but not used as the key. email is the
 -- account's primary address if GitHub has verified it, otherwise the first
--- verified one, otherwise null. No GitHub token is stored.
+-- verified one, otherwise null; each sign-in replaces it with what GitHub says
+-- now. No GitHub token is stored.
 
 CREATE TABLE users (
   github_id INTEGER PRIMARY KEY,

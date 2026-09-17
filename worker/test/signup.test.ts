@@ -2,6 +2,7 @@ import { env, exports } from "cloudflare:workers";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const ORIGIN = "https://signup.example";
+const SITE = "https://www.octave.run";
 const COOKIE = "__Host-octave-oauth";
 
 // The limiter is per IP and outlives a test, so each test comes from its own address.
@@ -42,7 +43,8 @@ function mockGitHub(overrides: Partial<Record<"token" | "user" | "emails", () =>
 			calls.token.push(new URLSearchParams(new TextDecoder().decode(await req.arrayBuffer())));
 			return overrides.token?.() ?? Response.json({ access_token: "gho_test", token_type: "bearer", scope: "read:user,user:email" });
 		}
-		if (url.href === "https://api.github.com/applications/test-client-id/token" && req.method === "DELETE") {
+		if (url.href === "https://api.github.com/applications/test-client-id/grant" && req.method === "DELETE") {
+			expect(req.headers.get("Authorization")).toBe(`Basic ${btoa("test-client-id:test-client-secret")}`);
 			calls.revoked.push(((await req.json()) as { access_token: string }).access_token);
 			return new Response(null, { status: 204 });
 		}
@@ -55,8 +57,11 @@ function mockGitHub(overrides: Partial<Record<"token" | "user" | "emails", () =>
 	return calls;
 }
 
-async function begin(query = ""): Promise<{ state: string; verifier: string; cookie: string; location: URL }> {
-	const res = await exports.default.fetch(`${ORIGIN}/auth/github/start${query}`, { redirect: "manual", headers: { "cf-connecting-ip": ip } });
+// Starts from our page by default, as the button on it does.
+async function begin(query = "", referer: string | null = `${SITE}/`): Promise<{ state: string; verifier: string; cookie: string; location: URL }> {
+	const headers: Record<string, string> = { "cf-connecting-ip": ip };
+	if (referer) headers.Referer = referer;
+	const res = await exports.default.fetch(`${ORIGIN}/auth/github/start${query}`, { redirect: "manual", headers });
 	expect(res.status).toBe(302);
 	const setCookie = res.headers.get("Set-Cookie")!;
 	const value = setCookie.split(";")[0].slice(COOKIE.length + 1);
@@ -71,13 +76,13 @@ async function finish(query: string, cookie?: string): Promise<{ res: Response; 
 	});
 	expect(res.status).toBe(302);
 	const location = new URL(res.headers.get("Location")!);
-	expect(location.origin).toBe("https://octave.run");
+	expect(location.origin).toBe(SITE);
 	return { res, outcome: location.searchParams.get("signup") };
 }
 
-async function signUp(query = ""): Promise<{ calls: Calls; outcome: string | null; res: Response }> {
+async function signUp(query = "", referer?: string | null): Promise<{ calls: Calls; outcome: string | null; res: Response }> {
 	const calls = mockGitHub();
-	const { state, cookie } = await begin(query);
+	const { state, cookie } = await begin(query, referer);
 	const { res, outcome } = await finish(`code=abc&state=${state}`, cookie);
 	return { calls, outcome, res };
 }
@@ -101,7 +106,7 @@ describe("start", () => {
 		expect(location.origin + location.pathname).toBe("https://github.com/login/oauth/authorize");
 		expect(location.searchParams.get("client_id")).toBe("test-client-id");
 		expect(location.searchParams.get("redirect_uri")).toBe(`${ORIGIN}/auth/github/callback`);
-		expect(location.searchParams.get("scope")).toBe("read:user user:email");
+		expect(location.searchParams.get("scope")).toBe("user:email");
 		expect(location.searchParams.get("state")).toBe(state);
 		expect(location.searchParams.get("code_challenge_method")).toBe("S256");
 
@@ -169,6 +174,17 @@ describe("callback", () => {
 		expect(row.updates_opt_in_at).toBeTypeOf("string");
 	});
 
+	it("does not take consent from a link on another site, or from no page at all", async () => {
+		for (const referer of ["https://evil.example/page", "https://octave.run.evil.example/", null]) {
+			await env.DB.exec("DELETE FROM users");
+			const { outcome } = await signUp("?updates=1", referer);
+			vi.restoreAllMocks();
+			expect(outcome).toBe("ok");
+			const [row] = await rows();
+			expect(row).toMatchObject({ updates_opt_in: 0, updates_opt_in_at: null });
+		}
+	});
+
 	it("updates a returning account without losing when it joined or its consent", async () => {
 		await signUp("?updates=1");
 		const [first] = await rows();
@@ -188,6 +204,15 @@ describe("callback", () => {
 			updates_opt_in: 1,
 			updates_opt_in_at: first.updates_opt_in_at,
 		});
+	});
+
+	it("replaces the email with what GitHub says now", async () => {
+		await signUp();
+		vi.restoreAllMocks();
+		mockGitHub({ emails: () => Response.json([]) });
+		const { state, cookie } = await begin();
+		await finish(`code=abc&state=${state}`, cookie);
+		expect((await rows())[0].email).toBeNull();
 	});
 
 	it("falls back to another verified address, and to none", async () => {
@@ -256,11 +281,15 @@ describe("routing", () => {
 
 	it("turns away an address that keeps asking", async () => {
 		const statuses = [];
+		let last = "";
 		for (let i = 0; i < 21; i++) {
 			const res = await exports.default.fetch(`${ORIGIN}/auth/github/start`, { redirect: "manual", headers: { "cf-connecting-ip": ip } });
 			statuses.push(res.status);
+			last = res.headers.get("Location")!;
 		}
+		expect(last).toBe(`${SITE}/?signup=error`);
 		expect(statuses.slice(0, 20).every((s) => s === 302)).toBe(true);
-		expect(statuses[20]).toBe(429);
+		// Turned away, but back on the site with something to say.
+		expect(statuses[20]).toBe(302);
 	});
 });

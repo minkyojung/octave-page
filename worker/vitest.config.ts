@@ -11,7 +11,7 @@ export default defineConfig(async () => {
 				miniflare: {
 					bindings: {
 						TEST_MIGRATIONS: migrations,
-						SITE_URL: "https://octave.run",
+						SITE_URL: "https://www.octave.run",
 						GITHUB_CLIENT_ID: "test-client-id",
 						GITHUB_CLIENT_SECRET: "test-client-secret",
 					},

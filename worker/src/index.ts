@@ -4,16 +4,17 @@
 //                              state and PKCE verifier, sends the person to GitHub.
 // GET /auth/github/callback  → checks the state, trades the code for a token,
 //                              reads the profile and email, keeps them in D1,
-//                              revokes the token, sends the person back to the site.
+//                              revokes the grant, sends the person back to the site.
 //
-// The token is used for those two reads and then revoked; nothing else is kept.
+// The token is used for those two reads and then revoked with its grant; it is never kept.
 // Every outcome ends at SITE_URL with ?signup=ok|cancelled|error, so the site
 // has one place to say what happened.
 
 const GITHUB_AUTHORIZE = "https://github.com/login/oauth/authorize";
 const GITHUB_TOKEN = "https://github.com/login/oauth/access_token";
 const GITHUB_API = "https://api.github.com";
-const SCOPE = "read:user user:email";
+// Public profile fields need no scope; only the email list does.
+const SCOPE = "user:email";
 const COOKIE = "__Host-octave-oauth";
 const COOKIE_MAX_AGE = 600;
 const UPSTREAM_TIMEOUT_MS = 10_000;
@@ -32,17 +33,21 @@ export default {
 			return redirect(siteUrl(env, "error"), cookie("", 0));
 		}
 
+		// A person who is turned away still lands back on the site, not on a bare 429.
 		const ip = request.headers.get("cf-connecting-ip") ?? "unknown";
-		if (!(await env.LIMITER.limit({ key: ip })).success) return new Response("Too many requests", { status: 429 });
+		if (!(await env.LIMITER.limit({ key: ip })).success) return redirect(siteUrl(env, "error"), cookie("", 0));
 
 		return route(request, env, ctx, url);
 	},
 } satisfies ExportedHandler<Env>;
 
-async function start(_request: Request, env: Env, _ctx: ExecutionContext, url: URL): Promise<Response> {
+async function start(request: Request, env: Env, _ctx: ExecutionContext, url: URL): Promise<Response> {
 	const state = randomToken();
 	const verifier = randomToken();
-	const updates = url.searchParams.get("updates") === "1" ? "1" : "0";
+	// Consent counts only when the box was ticked on our own page. A link to
+	// ?updates=1 from anywhere else still signs the person up, without it.
+	const fromSite = originOf(request.headers.get("Referer")) === new URL(env.SITE_URL).origin;
+	const updates = fromSite && url.searchParams.get("updates") === "1" ? "1" : "0";
 
 	const authorize = new URL(GITHUB_AUTHORIZE);
 	authorize.search = new URLSearchParams({
@@ -132,10 +137,11 @@ async function github<T>(path: string, token: string): Promise<T> {
 	return res.json();
 }
 
-// The token has done its job; revoking it means a leak of our logs or database
-// could never be turned into access to anyone's GitHub account.
+// The token has done its job. Deleting the grant, not just the token, takes the
+// app off the person's authorized list, so nothing of theirs stays reachable and
+// GitHub asks again if they ever come back.
 async function revoke(env: Env, token: string): Promise<void> {
-	const res = await fetch(`${GITHUB_API}/applications/${env.GITHUB_CLIENT_ID}/token`, {
+	const res = await fetch(`${GITHUB_API}/applications/${env.GITHUB_CLIENT_ID}/grant`, {
 		method: "DELETE",
 		headers: { ...githubHeaders(`Basic ${btoa(`${env.GITHUB_CLIENT_ID}:${env.GITHUB_CLIENT_SECRET}`)}`), "Content-Type": "application/json" },
 		body: JSON.stringify({ access_token: token }),
@@ -171,7 +177,7 @@ async function saveUser(db: D1Database, user: GitHubUser, email: string | null, 
 			ON CONFLICT(github_id) DO UPDATE SET
 				login = excluded.login,
 				name = excluded.name,
-				email = COALESCE(excluded.email, users.email),
+				email = excluded.email,
 				avatar_url = excluded.avatar_url,
 				bio = excluded.bio,
 				company = excluded.company,
@@ -203,6 +209,15 @@ async function saveUser(db: D1Database, user: GitHubUser, email: string | null, 
 			now,
 		)
 		.run();
+}
+
+function originOf(value: string | null): string | null {
+	if (!value) return null;
+	try {
+		return new URL(value).origin;
+	} catch {
+		return null;
+	}
 }
 
 function callbackUrl(url: URL): string {
