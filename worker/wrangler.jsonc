@@ -1,0 +1,31 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "octave-signup",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-09-01",
+	"observability": { "enabled": true },
+	"vars": {
+		// Where the person is sent back to once GitHub is done with them.
+		"SITE_URL": "https://octave.run",
+		// The production OAuth App's client id. Not a secret; the secret is set with
+		// `wrangler secret put GITHUB_CLIENT_SECRET`. Local runs override both in .dev.vars.
+		"GITHUB_CLIENT_ID": ""
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "octave-signup",
+			// Filled in from `wrangler d1 create octave-signup` before the first deploy.
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "migrations"
+		}
+	],
+	"ratelimits": [
+		{
+			// Per IP, across both routes. A sign-in is two requests.
+			"name": "LIMITER",
+			"namespace_id": "1001",
+			"simple": { "limit": 20, "period": 60 }
+		}
+	]
+}
