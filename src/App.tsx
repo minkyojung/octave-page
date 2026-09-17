@@ -7,6 +7,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { SmoothCursor } from '@/components/ui/smooth-cursor'
+import { SignUp } from '@/components/SignUp'
 
 function App() {
   return (
@@ -118,6 +119,8 @@ function App() {
             >
               * December 2025
             </p>
+
+            <SignUp />
           </div>
 
           {/* Right Column - Founder's Message */}

@@ -1,0 +1,4 @@
+.wrangler/
+.dev.vars
+# The repository ignores lockfiles; this one is kept so a deploy installs what was tested.
+!package-lock.json

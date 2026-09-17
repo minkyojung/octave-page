@@ -1,0 +1,5 @@
+# Copy to .dev.vars for `npm run dev`. Use the development OAuth App, whose
+# callback URL is http://localhost:8787/auth/github/callback.
+SITE_URL=http://localhost:5173
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
