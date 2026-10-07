@@ -4,10 +4,17 @@ import { GeistSans } from 'geist/font/sans'
 import type { ReactNode } from 'react'
 import './globals.css'
 
+const title = 'Octave'
+const description = 'A native macOS app that gives each piece of work its own workspace, with Claude Code at the table.'
+
+// The icons and the shared image are the files beside this one (icon, apple-icon, opengraph-image, twitter-image).
 export const metadata: Metadata = {
-  title: 'Octave',
-  description: 'A native macOS app that gives each piece of work its own workspace, with Claude Code at the table.',
-  icons: { icon: '/octave-icon.png' },
+  metadataBase: new URL('https://www.octave.run'),
+  title,
+  description,
+  alternates: { canonical: '/' },
+  openGraph: { type: 'website', url: '/', siteName: 'Octave', title, description },
+  twitter: { card: 'summary_large_image', title, description },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
