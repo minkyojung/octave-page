@@ -26,7 +26,6 @@ npm install
 cp .dev.vars.example .dev.vars   # 개발용 OAuth App의 id/secret
 npm run migrate:local
 npm run dev                      # http://localhost:8787
-# 랜딩은 저장소 루트에서: VITE_SIGNUP_URL=http://localhost:8787 npm run dev
 npm test
 npm run typecheck
 ```
