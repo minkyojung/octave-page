@@ -22,7 +22,6 @@ yarn-error.log*
 
 # Dependencies
 node_modules/
-package-lock.json
 yarn.lock
 
 # Build outputs
@@ -36,3 +35,7 @@ build/
 .env.local
 .env.*.local
 
+# Next.js
+.next/
+next-env.d.ts
+*.tsbuildinfo
