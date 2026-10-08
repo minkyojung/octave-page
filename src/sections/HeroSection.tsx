@@ -12,8 +12,7 @@ export function HeroSection({ release }: { release: Release }) {
         <IdeaField mirrored className="absolute right-full bottom-0 mr-6 hidden xl:block" />
         <IdeaField className="absolute bottom-0 left-full ml-6 hidden xl:block" />
         <p className="mx-auto mt-6 max-w-lg text-balance font-light text-muted">
-          A native macOS app that gives each piece of work its own workspace, with Claude Code at the table, from the
-          first plan to the pull request.
+          A native macOS app that gives each task its own workspace and Claude Code, from plan to pull request.
         </p>
         <div className="mt-8">
           <DownloadMenu release={release} />
