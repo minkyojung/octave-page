@@ -5,7 +5,7 @@ export function Header({ release }: { release: Release }) {
   return (
     <header className="sticky top-0 z-30 bg-background">
       <div className="mx-auto flex h-12 max-w-6xl items-center justify-between px-6">
-        <a href="/" className="flex items-center gap-2 font-light tracking-[-0.025em]">
+        <a href="/" className="flex items-center gap-2 font-normal tracking-[-0.025em]">
           <Image src="/octave-icon.png" alt="" width={24} height={24} priority className="size-6" />
           octave
         </a>

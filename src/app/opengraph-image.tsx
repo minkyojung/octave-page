@@ -17,8 +17,7 @@ const ACCENT = '#92c5fe'
 const png = (bytes: Buffer) => `data:image/png;base64,${bytes.toString('base64')}`
 
 // Each file named in full, so the build traces these and nothing else.
-const [light, regular, mono, icon, shot] = await Promise.all([
-  readFile(join(process.cwd(), 'node_modules/geist/dist/fonts/geist-sans/Geist-Light.ttf')),
+const [regular, mono, icon, shot] = await Promise.all([
   readFile(join(process.cwd(), 'node_modules/geist/dist/fonts/geist-sans/Geist-Regular.ttf')),
   readFile(join(process.cwd(), 'node_modules/geist/dist/fonts/geist-mono/GeistMono-Regular.ttf')),
   readFile(join(process.cwd(), 'public/octave-icon.png')).then(png),
@@ -78,7 +77,7 @@ export default function Image() {
         <Cloud lines={mirrored} side="left" />
         <Cloud lines={cloud} side="right" />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 52, fontSize: 30, fontWeight: 300 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 52, fontSize: 30, fontWeight: 400 }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- an image in an ImageResponse, not on a page */}
           <img src={icon} width={34} height={34} alt="" />
           octave
@@ -124,7 +123,6 @@ export default function Image() {
     {
       ...size,
       fonts: [
-        { name: 'Geist', data: light, weight: 300, style: 'normal' },
         { name: 'Geist', data: regular, weight: 400, style: 'normal' },
         { name: 'Geist Mono', data: mono, weight: 400, style: 'normal' },
       ],
