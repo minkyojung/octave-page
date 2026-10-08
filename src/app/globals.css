@@ -14,13 +14,13 @@
   --color-accent: #92c5fe;
 
   /* The line under the lit step of the tour, filling until the next step takes over. */
-  --animate-fill: fill 5s linear forwards;
+  --animate-fill: fill 5s steps(36) forwards;
   @keyframes fill {
     from {
-      transform: scaleX(0);
+      clip-path: inset(0 100% 0 0);
     }
     to {
-      transform: scaleX(1);
+      clip-path: inset(0);
     }
   }
 }
