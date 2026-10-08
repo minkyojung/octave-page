@@ -11,7 +11,8 @@ const description = 'A better way to use Claude Code.'
 // shared image too, having no twitter-image of its own.
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.octave.run'),
-  title,
+  // The tab and search results say what Octave is; a shared link shows the description under the name instead.
+  title: 'Octave — A better way to use Claude Code',
   description,
   alternates: { canonical: '/' },
   openGraph: { type: 'website', url: '/', siteName: 'Octave', title, description },
