@@ -11,7 +11,7 @@ export function Header({ release }: { release: Release }) {
         </a>
         <a
           href={release.dmgUrl}
-          className="rounded-full border border-line px-3.5 py-1.5 text-[0.8125rem] font-light text-foreground transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+          className="rounded-full border border-line px-3.5 py-1.5 text-[0.8125rem] font-normal text-foreground transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
         >
           Download
         </a>
