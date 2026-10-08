@@ -92,7 +92,7 @@ export default function Image() {
             fontSize: 80,
             fontWeight: 400,
             lineHeight: 1.05,
-            letterSpacing: -3.6,
+            letterSpacing: -4.4,
           }}
         >
           <div>You bring the idea.</div>
