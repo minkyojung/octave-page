@@ -11,7 +11,7 @@ export function HeroSection({ release }: { release: Release }) {
       <div className="relative">
         <IdeaField mirrored className="absolute right-full bottom-0 mr-6 hidden xl:block" />
         <IdeaField className="absolute bottom-0 left-full ml-6 hidden xl:block" />
-        <p className="mx-auto mt-6 max-w-lg text-balance font-light text-muted">
+        <p className="mx-auto mt-6 max-w-lg text-balance font-normal text-muted">
           A better way to use Claude Code.
         </p>
         <div className="mt-8">
