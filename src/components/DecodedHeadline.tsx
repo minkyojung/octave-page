@@ -71,7 +71,7 @@ export function DecodedHeadline() {
   }, [reduceMotion, setIndex])
 
   return (
-    <h1 className="text-[clamp(1.75rem,8.5vw,3.75rem)] leading-[1.05] font-extralight tracking-[-0.045em]">
+    <h1 className="text-[clamp(1.75rem,8.5vw,3.75rem)] leading-[1.05] font-normal tracking-[-0.055em]">
       <span className="sr-only">You bring the idea. Octave plans, builds and ships it.</span>
       <span aria-hidden>
         You bring the idea.

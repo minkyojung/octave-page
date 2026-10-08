@@ -247,7 +247,7 @@ export function Wireframe() {
   return (
     <div
       aria-hidden
-      className="mx-auto mt-16 w-[min(64rem,100%-3rem)] overflow-hidden rounded-xl border border-line font-mono text-xs"
+      className="mx-auto mt-16 w-[min(64rem,100%-3rem)] overflow-hidden rounded-xl border border-line bg-linear-to-b from-white/[0.04] to-transparent font-mono text-xs"
     >
       {/* the title bar: traffic lights and the open tabs */}
       <div className="flex h-10 items-center gap-4 border-b border-line px-4">
