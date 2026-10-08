@@ -17,9 +17,9 @@ const ACCENT = '#92c5fe'
 const png = (bytes: Buffer) => `data:image/png;base64,${bytes.toString('base64')}`
 
 // Each file named in full, so the build traces these and nothing else.
-const [ultraLight, light, mono, icon, shot] = await Promise.all([
-  readFile(join(process.cwd(), 'node_modules/geist/dist/fonts/geist-sans/Geist-UltraLight.ttf')),
+const [light, regular, mono, icon, shot] = await Promise.all([
   readFile(join(process.cwd(), 'node_modules/geist/dist/fonts/geist-sans/Geist-Light.ttf')),
+  readFile(join(process.cwd(), 'node_modules/geist/dist/fonts/geist-sans/Geist-Regular.ttf')),
   readFile(join(process.cwd(), 'node_modules/geist/dist/fonts/geist-mono/GeistMono-Regular.ttf')),
   readFile(join(process.cwd(), 'public/octave-icon.png')).then(png),
   readFile(join(process.cwd(), 'public/steps/ship.png')).then(png),
@@ -91,14 +91,14 @@ export default function Image() {
             alignItems: 'center',
             marginTop: 34,
             fontSize: 80,
-            fontWeight: 200,
+            fontWeight: 400,
             lineHeight: 1.05,
             letterSpacing: -3.6,
           }}
         >
           <div>You bring the idea.</div>
           <div style={{ display: 'flex' }}>
-            Octave&nbsp;<span style={{ color: ACCENT, fontWeight: 300 }}>ships</span>&nbsp;it.
+            Octave&nbsp;<span style={{ color: ACCENT }}>ships</span>&nbsp;it.
           </div>
         </div>
 
@@ -124,8 +124,8 @@ export default function Image() {
     {
       ...size,
       fonts: [
-        { name: 'Geist', data: ultraLight, weight: 200, style: 'normal' },
         { name: 'Geist', data: light, weight: 300, style: 'normal' },
+        { name: 'Geist', data: regular, weight: 400, style: 'normal' },
         { name: 'Geist Mono', data: mono, weight: 400, style: 'normal' },
       ],
     },
