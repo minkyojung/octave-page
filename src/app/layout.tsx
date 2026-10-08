@@ -7,7 +7,8 @@ import './globals.css'
 const title = 'Octave'
 const description = 'A native macOS app that gives each piece of work its own workspace, with Claude Code at the table.'
 
-// The icons and the shared image are the files beside this one (icon, apple-icon, opengraph-image, twitter-image).
+// The icons and the shared image are the files beside this one (icon, apple-icon, opengraph-image); X uses the
+// shared image too, having no twitter-image of its own.
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.octave.run'),
   title,
